@@ -24,7 +24,7 @@ To use this software you will need:
 Step 1 - Download the script
 To get started with the system it is first necessary to download the files.
 
-git clone https://github.com/hubthom/NFT-auto-selling.git
+    git clone https://github.com/hubthom/NFT-auto-selling.git
 
 
 Step 2 - modify variables

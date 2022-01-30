@@ -29,8 +29,8 @@ git clone https://github.com/hubthom/NFT-auto-selling.git
 
 Step 2 - modify variables
 We need to update a few things in auto-nft-saler.sh before we can set it running:
-    cd ..
-    nano auto-nft-saler.sh
+cd ..
+nano auto-nft-saler.sh
 Firstly on lines 9,10,12 we need to add the payment address (i hope you have one), as well as add the paths to the payment and policy skey files and the price of Token we sell.
 
 For example: (lines 9,10)

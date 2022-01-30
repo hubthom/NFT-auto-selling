@@ -6,14 +6,14 @@ looping=1
 log=log_file.txt
 txs=txs.txt
 numberCompleted=0
-myAddr=addr1qyyhymjpwnujamadjnlh8xmgx80wzuhqm368s6ulgl9mawrr99nkrt2meqa2z55hep7jnj8rkmt0e84z440lt0grvysse3fyck
+myAddr=addr1qyyhymjpwn23874jfu04989ufkjgfolijfldfjow9580584058024820rwoehfe98gf7b87b97969676869dgt0e84z440lt0grvysse3fyck
 paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/Vsales/payment.skey
 profitAddr=addr1
 priceoftoken=3000000
 tokenAmountFinal=-1
 myInitADA=-1
 my_tx_in=-1
-myToken=0fd9883479f0g8475hefu984320984097823409feg57dc15.563456353
+myToken=0fd9883479f0g8475hefu98432098gje8378457648239fjr4097823409feg57dc15.563456353
 echo "" >> $txs
 echo "" >> $log
 echo "Log File" >> $log
@@ -123,7 +123,7 @@ while (( looping )); do
                 echo "my Address is detected"
                 continue
             else
-                echo "Semdomg NFT..."
+                echo "Sending NFT..."
                 echo "Sending NFT..." >> $log
                 numberCompleted=$(( numberCompleted+1 ))
                 amountToSendUser=1850000
@@ -151,7 +151,7 @@ while (( looping )); do
                     --fee 0 \
                     --tx-in ${tx_in} \
                     --tx-in ${my_tx_in} \
-                    --tx-out ${in_addr}+${amountToSendUser}+"20000000 ${myToken}" \
+                    --tx-out ${in_addr}+${amountToSendUser}+"2 ${myToken}" \
                     --tx-out ${myAddr}+${myInitADA}+"${tokenAmountFinal} ${myToken}" \
                     --invalid-hereafter $FINALTIP \
                     --out-file tx.draft
@@ -172,12 +172,12 @@ while (( looping )); do
 #                amountToSendUserNew=$(expr $amountToSendUser - $fee)
                 echo "aDAtToReturn : ${aDAToReturn}" >> $log 
                 echo "amountToSendUser : ${amountToSendUser}" >> $log
-                tokenToKeep=$(expr $tokenAmountFinal - 20000000)
+                tokenToKeep=$(expr $tokenAmountFinal - 2)
                 cardano-cli transaction build-raw \
                     --fee ${fee} \
                     --tx-in ${tx_in} \
                     --tx-in ${my_tx_in} \
-                    --tx-out ${in_addr}+${amountToSendUser}+"20000000 ${myToken}" \
+                    --tx-out ${in_addr}+${amountToSendUser}+"2 ${myToken}" \
                     --tx-out ${myAddr}+${aDAToReturn}+"${tokenToKeep} ${myToken}" \
                     --invalid-hereafter $FINALTIP \
                     --out-file tx.raw >> $log

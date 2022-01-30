@@ -15,10 +15,10 @@ for every new TxHash, we have 2 cases.
 
 # Requirements
 To use this software you will need:
-•	A fully synced Cardano node using version 1.33.0
-•	A Linux (tested on Ubuntu) system
-•	Basic knowledge of Cardano-CLI commands 
-•	A Blockfrost mainnet account and project ID (API key).
+- A fully synced Cardano node using version 1.33.0
+- A Linux (tested on Ubuntu) system
+- Basic knowledge of Cardano-CLI commands 
+- A Blockfrost mainnet account and project ID (API key).
 
 # Installation
 Step 1 - Download the script

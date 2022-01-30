@@ -29,13 +29,16 @@ To get started with the system it is first necessary to download the files.
 
 Step 2 - modify variables
 We need to update a few things in auto-nft-saler.sh before we can set it running:
-cd ..
-nano auto-nft-saler.sh
+
+    cd ..
+    nano auto-nft-saler.sh
+
 Firstly on lines 9,10,12 we need to add the payment address (i hope you have one), as well as add the paths to the payment and policy skey files and the price of Token we sell.
 
 For example: (lines 9,10)
 myAddr=addr1qyyhy.....
 paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/Vsales/payment.skey
+
 and last parameter to change how much your NFTs cost (line 12)
 priceoftoken=3000000
 
@@ -44,42 +47,50 @@ Next change the value of amountToSendUser on line 129 to your price in lovelace.
 
 Step 3 - Create a systemctl process
 In order for the system to run 24/7 we need to create a systemd service:
-sudo nano /etc/systemd/system/nftsales.service
+
+    sudo nano /etc/systemd/system/nftsales.service
+
 Now paste the following into the text editor:
-[Unit]
-Description=NFT Vending Machine
 
-[Service]
-Environment="CARDANO_NODE_SOCKET_PATH=/opt/cardano/cnode/sockets/node0.socket"
-ExecStart=/usr/bin/auto-nft-saler.sh
-Restart=always
-RestartSec=3
+    [Unit]
+    Description=NFT Vending Machine
 
-[Install]
-WantedBy=multi-user.target
+    [Service]
+    Environment="CARDANO_NODE_SOCKET_PATH=/opt/cardano/cnode/sockets/node0.socket"
+    ExecStart=/usr/bin/auto-nft-saler.sh
+    Restart=always
+    RestartSec=3
+
+    [Install]
+    WantedBy=multi-user.target
 
 Save and exit the file and then type:
-sudo cp auto-nft-saler.sh /usr/bin/nftsales.sh
+
+    sudo cp auto-nft-saler.sh /usr/bin/nftsales.sh
 
 
 Before this will work we need to make sure cardano-cli and cardano-node are in system directories. The Guild setup puts those programs in your home folder which won't work for a systemd service.
 Thankfully this is easy to fix with two commands:
-sudo cp ~/.cabal/bin/cardano-cli /usr/bin/cardano-cli
-sudo cp ~/.cabal/bin/cardano-node /usr/bin/cardano-node
+
+    sudo cp ~/.cabal/bin/cardano-cli /usr/bin/cardano-cli
+    sudo cp ~/.cabal/bin/cardano-node /usr/bin/cardano-node
 
 
 Next we need to start and enable the service:
-sudo systemctl enable nftsales.service
-sudo systemctl start nftsales.service
+
+    sudo systemctl enable nftsales.service
+    sudo systemctl start nftsales.service
 
 
 Check the service is working by typing:
-sudo systemctl status vendingmachine.service
+
+    sudo systemctl status vendingmachine.service
 
 It should show no errors and you're all set.
 
 You can also check the log file :
-cat log_file.txt
+
+    cat log_file.txt
 
 If all is working as it should, you should see logs of past transactions. For this current moment i have many logs, so that we see better the whole process.
 After testing, you can remove many of them so that you keep less logs in your file.

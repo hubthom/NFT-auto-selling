@@ -52,7 +52,7 @@ In order for the system to run 24/7 we need to create a systemd service:
 Now paste the following into the text editor:
 
     [Unit]
-    Description=NFT Vending Machine
+    Description=NFT Selling
 
     [Service]
     Environment="CARDANO_NODE_SOCKET_PATH=/opt/cardano/cnode/sockets/node0.socket"

@@ -166,10 +166,7 @@ while (( looping )); do
                     --protocol-params-file protocol.json \
                     | tr -dc '0-9')
                 echo "fee : ${fee}" >> $log
-#                fee=200000
                 aDAToReturn=$(expr $priceoftoken - $amountToSendUser - $fee + $myInitADA)
-#                amountToReturn=$(expr $priceoftoken - $amountToSendUser)
-#                amountToSendUserNew=$(expr $amountToSendUser - $fee)
                 echo "aDAtToReturn : ${aDAToReturn}" >> $log 
                 echo "amountToSendUser : ${amountToSendUser}" >> $log
                 tokenToKeep=$(expr $tokenAmountFinal - 2)

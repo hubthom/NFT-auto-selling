@@ -34,9 +34,9 @@ We need to update a few things in auto-nft-saler.sh before we can set it running
 
 Firstly on lines 9,10,12 we need to add the payment address (i hope you have one), as well as add the paths to the payment and policy skey files and the price of Token we sell.
 
-For example: (lines 9,10)
-myAddr=addr1qyyhy.....
-paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/Vsales/payment.skey
+For example:
+Line 9 : myAddr=addr1qyyhy.....
+Line 10:paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/Vsales/payment.skey
 
 and last parameter to change how much your NFTs cost (line 12)
 priceoftoken=3000000

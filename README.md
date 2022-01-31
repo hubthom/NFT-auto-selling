@@ -83,7 +83,7 @@ Next we need to start and enable the service:
 
 Check the service is working by typing:
 
-    sudo systemctl status vendingmachine.service
+    sudo systemctl status nftsales.service
 
 It should show no errors and you're all set.
 

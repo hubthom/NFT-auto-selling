@@ -94,3 +94,8 @@ You can also check the log file :
 If all is working as it should, you should see logs of past transactions. For this current moment i have many logs, so that we see better the whole process.
 After testing, you can remove many of them so that you keep less logs in your file.
 You are now set up to automatically sell and distribute your NFTs!
+
+
+great thanks to : https://github.com/ejane24/Cardano-NFT-Auto-Mint/blob/main/process.sh
+where i found the original script.
+many changes, fix few possible cases, updates and new codingline are added to achieve our task.

@@ -1,13 +1,21 @@
 ##!/bin/bash
 
-cd /home/$(whoami)/git/thomas
-rm log_file.txt
+cd /home/cardano/git/thomas/
 looping=1
-log=log_file.txt
-txs=txs.txt
+log=/home/cardano/git/thomas/log_file.txt
+txs=/home/cardano/git/thomas/txs.txt
+fullUtxo=/home/cardano/git/thomas/fullUtxo.out
+balance=/home/cardano/git/thomas/balance.out
+utxo=/home/cardano/git/thomas/utxo.json
+txtmp=/home/cardano/git/thomas/tx.tmp
+txraw=/home/cardano/git/thomas/tx.raw
+txsigned=/home/cardano/git/thomas/tx.signed
+protocoljson=/home/cardano/git/thomas/protocol.json
+txdraft=/home/cardano/git/thomas/tx.draft
+tipjson=/home/cardano/git/thomas/tip.json
 numberCompleted=0
 myAddr=addr1qyyhymjpwn23874jfu04989ufkjgfolijfldfjow9580584058024820rwoehfe98gf7b87b97969676869dgt0e84z440lt0grvysse3fyck
-paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/Vsales/payment.skey
+paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/walletName/payment.skey
 profitAddr=addr1
 priceoftoken=3000000
 tokenAmountFinal=-1
@@ -27,11 +35,11 @@ trap 'looping=0;wait' INT TERM
 while (( looping )); do
     echo "entering quering UTxO Look"
     echo "entering quering UTxO Look" >> $log
-    cardano-cli query utxo --address $myAddr --mainnet > fullUtxo.out
-    tail -n +3 fullUtxo.out | sort -k3 -nr  > balance.out
-    cat balance.out
+    cardano-cli query utxo --address $myAddr --mainnet > $fullUtxo
+    tail -n +3 ${fullUtxo} | sort -k3 -nr  > $balance
+    cat ${balance}
     while read -r utxo; do
-        sleep 5s
+        sleep 15m
         echo "UTXO detected"
         echo "UTXO detected" >> $log
         echo "original token Amount : ${originalTokenAmount}" >> $log
@@ -41,7 +49,7 @@ while (( looping )); do
         tx_in="${tx_hash}#${idx}"
         token=$(awk '{ print $7}' <<< "${utxo}")
         tokenAmount=$(awk '{ print $6}' <<< "${utxo}")
-        txcnt=$(cat balance.out | wc -l)
+        txcnt=$(cat ${balance} | wc -l)
         if [[ ${token} = ${myToken} ]]
         then
                 echo "myToken is detected"
@@ -78,7 +86,7 @@ while (( looping )); do
             echo "New tx is Detected..."
             echo "New tx is Detected..." >> $log
             echo ${tx_hash} >> $txs
-            in_addr=$(curl -H 'project_id: Insert here' \
+            in_addr=$(curl -H 'project_id: enter_ProjectID' \
                     https://cardano-mainnet.blockfrost.io/api/v0/txs/${tx_hash}/utxos \
                     | jq '.inputs' | jq '.[0]' | jq '.address' | sed 's/^.//;s/.$//')
             echo "1. Sender_Address : ${in_addr}" >> $log
@@ -93,15 +101,15 @@ while (( looping )); do
                     --tx-in ${tx_in} \
                     --tx-out ${in_addr}+${utxo_balance} \
                     --invalid-hereafter $(( ${currentSlot} + 2000)) \
-                    --out-file tx.tmp >> $log
+                    --out-file ${txtmp} >> $log
                 fee=$(cardano-cli transaction calculate-min-fee \
-                    --tx-body-file tx.tmp \
+                    --tx-body-file ${txtmp} \
                     --tx-in-count 1 \
                     --tx-out-count 1 \
                     --mainnet \
                     --witness-count 1 \
                     --byron-witness-count 0 \
-                    --protocol-params-file protocol.json | awk '{ print $1 }') >> $log
+                    --protocol-params-file ${protocoljson} | awk '{ print $1 }') >> $log
               fee=${fee%" Lovelace"}
                 amountToSendUser=$(( ${utxo_balance}-${fee} ))
                 echo "Send Without Fee : ${amountToSendUser}" >> $log
@@ -110,20 +118,20 @@ while (( looping )); do
                     --tx-in ${tx_in} \
                     --tx-out ${in_addr}+${amountToSendUser} \
                     --invalid-hereafter $(( ${currentSlot} + 1000)) \
-                    --out-file tx.raw >> $log
+                    --out-file ${txraw} >> $log
                 cardano-cli transaction sign \
                     --signing-key-file $paymentSignKeyPath \
-                    --tx-body-file tx.raw \
-                    --out-file tx.signed \
+                    --tx-body-file ${txraw} \
+                    --out-file ${txsigned} \
                     --mainnet >> $log
-                cardano-cli transaction submit --tx-file tx.signed --mainnet >> $log
+                cardano-cli transaction submit --tx-file ${txsigned} --mainnet >> $log
                 echo "Refund is Sent"
             elif [ ${in_addr} = ${myAddr} ]
             then
                 echo "my Address is detected"
                 continue
-            else
-                echo "Sending NFT..."
+           else
+                echo "Semdomg NFT..."
                 echo "Sending NFT..." >> $log
                 numberCompleted=$(( numberCompleted+1 ))
                 amountToSendUser=1850000
@@ -134,15 +142,15 @@ while (( looping )); do
                     --cardano-mode \
                     --mainnet \
                     --address ${myAddr} \
-                    --out-file utxo.json
+                    --out-file ${utxo}
                 echo "utxo done"
                 # transaction variables
                 TXNS=$(jq length utxo.json)
                 echo "TXNS : ${TXNS}" >> $log
                 # Next tip before no transaction
                 echo "Getting chain tip"
-                cardano-cli query tip --mainnet --out-file tip.json
-                TIP=$(jq .slot tip.json)
+                cardano-cli query tip --mainnet --out-file ${tipjson}
+                TIP=$(jq .slot ${tipjson})
                 DELTA=2000
                 FINALTIP=$(( ${DELTA} + ${TIP} ))
                 echo $FINALTIP >> $log
@@ -151,41 +159,41 @@ while (( looping )); do
                     --fee 0 \
                     --tx-in ${tx_in} \
                     --tx-in ${my_tx_in} \
-                    --tx-out ${in_addr}+${amountToSendUser}+"2 ${myToken}" \
+                    --tx-out ${in_addr}+${amountToSendUser}+"20000000 ${myToken}" \
                     --tx-out ${myAddr}+${myInitADA}+"${tokenAmountFinal} ${myToken}" \
                     --invalid-hereafter $FINALTIP \
-                    --out-file tx.draft
+                    --out-file ${txdraft}
                 echo "Draft Transaction is Done" >> $log
                 echo "Calculating Transaction Fee"
                 fee=$(cardano-cli transaction calculate-min-fee \
-                    --tx-body-file tx.draft \
+                    --tx-body-file ${txdraft} \
                     --tx-in-count 2 \
                     --tx-out-count 2 \
                     --witness-count 3 \
                     --mainnet \
-                    --protocol-params-file protocol.json \
+                    --protocol-params-file ${protocoljson} \
                     | tr -dc '0-9')
                 echo "fee : ${fee}" >> $log
                 aDAToReturn=$(expr $priceoftoken - $amountToSendUser - $fee + $myInitADA)
                 echo "aDAtToReturn : ${aDAToReturn}" >> $log 
                 echo "amountToSendUser : ${amountToSendUser}" >> $log
-                tokenToKeep=$(expr $tokenAmountFinal - 2)
+                tokenToKeep=$(expr $tokenAmountFinal - 20000000)
                 cardano-cli transaction build-raw \
                     --fee ${fee} \
                     --tx-in ${tx_in} \
                     --tx-in ${my_tx_in} \
-                    --tx-out ${in_addr}+${amountToSendUser}+"2 ${myToken}" \
+                    --tx-out ${in_addr}+${amountToSendUser}+"20000000 ${myToken}" \
                     --tx-out ${myAddr}+${aDAToReturn}+"${tokenToKeep} ${myToken}" \
                     --invalid-hereafter $FINALTIP \
-                    --out-file tx.raw >> $log
+                    --out-file ${txraw} >> $log
                 cardano-cli transaction sign \
                     --signing-key-file $paymentSignKeyPath \
-                    --tx-body-file tx.raw \
-                    --out-file tx.signed \
+                    --tx-body-file ${txraw} \
+                    --out-file ${txsigned} \
                     --mainnet >> $log
                 cardano-cli transaction submit --tx-file tx.signed --mainnet >> $log
             fi
         fi
-    done < balance.out
+    done < ${balance}
     wait
 done

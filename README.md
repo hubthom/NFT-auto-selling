@@ -68,13 +68,6 @@ Save and exit the file and then type:
     sudo cp auto-nft-saler.sh /usr/bin/nftsales.sh
 
 
-Before this will work we need to make sure cardano-cli and cardano-node are in system directories. The Guild setup puts those programs in your home folder which won't work for a systemd service.
-Thankfully this is easy to fix with two commands:
-
-    sudo cp ~/.cabal/bin/cardano-cli /usr/bin/cardano-cli
-    sudo cp ~/.cabal/bin/cardano-node /usr/bin/cardano-node
-
-
 Next we need to start and enable the service:
 
     sudo systemctl enable nftsales.service

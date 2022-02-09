@@ -1,12 +1,13 @@
-##!/bin/bash
+#!/bin/bash
 
 cd /home/cardano/git/thomas/
 looping=1
 log=/home/cardano/git/thomas/log_file.txt
 txs=/home/cardano/git/thomas/txs.txt
+txsin=/home/cardano/git/thomas/txsin.txt
 fullUtxo=/home/cardano/git/thomas/fullUtxo.out
 balance=/home/cardano/git/thomas/balance.out
-utxo=/home/cardano/git/thomas/utxo.json
+utxojason=/home/cardano/git/thomas/utxo.json
 txtmp=/home/cardano/git/thomas/tx.tmp
 txraw=/home/cardano/git/thomas/tx.raw
 txsigned=/home/cardano/git/thomas/tx.signed
@@ -14,15 +15,21 @@ protocoljson=/home/cardano/git/thomas/protocol.json
 txdraft=/home/cardano/git/thomas/tx.draft
 tipjson=/home/cardano/git/thomas/tip.json
 numberCompleted=0
-myAddr=addr1qyyhymjpwn23874jfu04989ufkjgfolijfldfjow9580584058024820rwoehfe98gf7b87b97969676869dgt0e84z440lt0grvysse3fyck
-paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/walletName/payment.skey
+donAddr=addr1q9adpgxj4lv6z8qwvdculct4gf3ue4s6323jyd0565q4524uppuskx0yl75rat65kw0vr5g34gpve9agzm2nkm7se7qd0r
+myAddr=addr1q9adpgxj4lv6z8qwvdculct4gf3ue4s6323jyd0565q4524uppuskx0yl75rat65kw0vr5g34gpve9agzm2nkm7se7qd0r
+paymentSignKeyPath=/opt/cardano/cnode/priv/wallet/wallet_name/payment.skey
 profitAddr=addr1
 priceoftoken=3000000
 tokenAmountFinal=-1
 myInitADA=-1
 my_tx_in=-1
-myToken=0fd9883479f0g8475hefu98432098gje8378457648239fjr4097823409feg57dc15.563456353
+my_old_tx_in=-2
+transSending=0
+myToken=0fd9819a9d7fb423553f43a42d33679858f12bc5f9441cec643dc15.56693462453
+sender=/home/cardano/git/folder/sender.txt
 echo "" >> $txs
+echo "" >> $txsin
+echo "" >> $utxojason
 echo "" >> $log
 echo "Log File" >> $log
 echo "-------------------" >> $log
@@ -33,13 +40,14 @@ echo "" >> $log
 trap 'looping=0;wait' INT TERM
 
 while (( looping )); do
+    sleep 1m
     echo "entering quering UTxO Look"
     echo "entering quering UTxO Look" >> $log
     cardano-cli query utxo --address $myAddr --mainnet > $fullUtxo
     tail -n +3 ${fullUtxo} | sort -k3 -nr  > $balance
     cat ${balance}
     while read -r utxo; do
-        sleep 15m
+        sleep 1m
         echo "UTXO detected"
         echo "UTXO detected" >> $log
         echo "original token Amount : ${originalTokenAmount}" >> $log
@@ -52,20 +60,34 @@ while (( looping )); do
         txcnt=$(cat ${balance} | wc -l)
         if [[ ${token} = ${myToken} ]]
         then
-                echo "myToken is detected"
-                echo "myToken is detected" >> $log
-                myInitADA=$(awk '{ print $3}' <<< "${utxo}")
-                echo "myInitADA : ${myInitADA}" >> $log
-                tokenAmountFinal=${tokenAmount}
-                my_tx_in=${tx_in}
-        elif [[ ${myInitADA} -eq -1 ]]
+            echo "myToken is detected"
+            echo "myToken is detected" >> $log
+            myInitADA=$(awk '{ print $3}' <<< "${utxo}")
+            echo "myInitADA : ${myInitADA}" >> $log
+            tokenAmountFinal=${tokenAmount}
+            my_tx_in=${tx_in}
+            if [[ ${my_tx_in} = ${my_old_tx_in} ]] && [[ ${transSending} -eq 1 ]];
+            then
+                echo "Sending TX in Progress"
+                break
+            else
+                echo "new Tx detected"
+                transSending=0
+                my_old_tx_in=${my_tx_in}
+            fi
+        elif [ ${myInitADA} -eq -1 ];
         then
-                echo "Initializing Original Values" 
-                echo "Initializing Original Values" >> $log
-                continue
+            echo "Initializing Original Values"
+            echo "Initializing Original Values" >> $log
+            continue
         else
-                echo "myToken ISNOT detected" 
-                echo "myToken ISNOT detected" >> $log
+            echo "myToken ISNOT detected"
+            echo "myToken ISNOT detected" >> $log
+        fi
+        if [ ${transSending} -eq 1 ];
+        then
+            echo "Sending Transaction in Progress"
+            break
         fi
         echo "TX_Hash : ${tx_hash}" >> $log
         echo "idx : ${idx}" >> $log
@@ -76,8 +98,7 @@ while (( looping )); do
         echo "tokenAmount : ${tokenAmount}" >> $log
         echo "tokenAmountFinal : ${tokenAmountFinal}" >> $log
         echo "my_tx_in : ${my_tx_in}" >> $log
-        echo "cat ${txs}"
-        if [ $( grep -q "${tx_hash}" "$txs" && echo $? ) ]
+        if [ $( grep -q "${tx_in}" "$txsin" && echo $? ) ]
         then
             echo "OLD tx is Detected..."
             echo "OLD tx is Detected..." >> $log
@@ -85,8 +106,8 @@ while (( looping )); do
         else
             echo "New tx is Detected..."
             echo "New tx is Detected..." >> $log
-            echo ${tx_hash} >> $txs
-            in_addr=$(curl -H 'project_id: enter_ProjectID' \
+            echo ${tx_in} >> $txsin
+            in_addr=$(curl -H 'project_id: mainnetb223DFG435FuHTTWog48i8SEhuWhEegfA' \
                     https://cardano-mainnet.blockfrost.io/api/v0/txs/${tx_hash}/utxos \
                     | jq '.inputs' | jq '.[0]' | jq '.address' | sed 's/^.//;s/.$//')
             echo "1. Sender_Address : ${in_addr}" >> $log
@@ -126,26 +147,28 @@ while (( looping )); do
                     --mainnet >> $log
                 cardano-cli transaction submit --tx-file ${txsigned} --mainnet >> $log
                 echo "Refund is Sent"
+                myInitADA=-1
+                transSending=1
             elif [ ${in_addr} = ${myAddr} ]
             then
                 echo "my Address is detected"
                 continue
-           else
-                echo "Semdomg NFT..."
+            else
+                echo "Sending NFT..."
                 echo "Sending NFT..." >> $log
+                echo "New Sender_Address : ${in_addr}" >> $sender
                 numberCompleted=$(( numberCompleted+1 ))
                 amountToSendUser=1850000
                 currentSlot=$(cardano-cli query tip --mainnet | jq -r '.slot')
                 # get utxo
                 echo "Getting utxo"
                 cardano-cli query utxo \
-                    --cardano-mode \
-                    --mainnet \
                     --address ${myAddr} \
-                    --out-file ${utxo}
+                    --mainnet \
+                    --out-file ${utxojason}
                 echo "utxo done"
                 # transaction variables
-                TXNS=$(jq length utxo.json)
+                TXNS=$(jq length ${utxojason})
                 echo "TXNS : ${TXNS}" >> $log
                 # Next tip before no transaction
                 echo "Getting chain tip"
@@ -169,7 +192,7 @@ while (( looping )); do
                     --tx-body-file ${txdraft} \
                     --tx-in-count 2 \
                     --tx-out-count 2 \
-                    --witness-count 3 \
+                    --witness-count 1 \
                     --mainnet \
                     --protocol-params-file ${protocoljson} \
                     | tr -dc '0-9')
@@ -192,6 +215,8 @@ while (( looping )); do
                     --out-file ${txsigned} \
                     --mainnet >> $log
                 cardano-cli transaction submit --tx-file tx.signed --mainnet >> $log
+                myInitADA=-1
+                transSending=1
             fi
         fi
     done < ${balance}

@@ -1,19 +1,19 @@
 #!/bin/bash
 
-cd /home/cardano/git/thomas/
+cd /home/cardano/git/folder/
 looping=1
-log=/home/cardano/git/thomas/log_file.txt
-txs=/home/cardano/git/thomas/txs.txt
-txsin=/home/cardano/git/thomas/txsin.txt
-fullUtxo=/home/cardano/git/thomas/fullUtxo.out
-balance=/home/cardano/git/thomas/balance.out
-utxojason=/home/cardano/git/thomas/utxo.json
-txtmp=/home/cardano/git/thomas/tx.tmp
-txraw=/home/cardano/git/thomas/tx.raw
-txsigned=/home/cardano/git/thomas/tx.signed
-protocoljson=/home/cardano/git/thomas/protocol.json
-txdraft=/home/cardano/git/thomas/tx.draft
-tipjson=/home/cardano/git/thomas/tip.json
+log=/home/cardano/git/folder/log_file.txt
+txs=/home/cardano/git/folder/txs.txt
+txsin=/home/cardano/git/folder/txsin.txt
+fullUtxo=/home/cardano/git/folder/fullUtxo.out
+balance=/home/cardano/git/folder/balance.out
+utxojason=/home/cardano/git/folder/utxo.json
+txtmp=/home/cardano/git/folder/tx.tmp
+txraw=/home/cardano/git/folder/tx.raw
+txsigned=/home/cardano/git/folder/tx.signed
+protocoljson=/home/cardano/git/folder/protocol.json
+txdraft=/home/cardano/git/folder/tx.draft
+tipjson=/home/cardano/git/folder/tip.json
 numberCompleted=0
 donAddr=addr1q9adpgxj4lv6z8qwvdculct4gf3ue4s6323jyd0565q4524uppuskx0yl75rat65kw0vr5g34gpve9agzm2nkm7se7qd0r
 myAddr=addr1q9adpgxj4lv6z8qwvdculct4gf3ue4s6323jyd0565q4524uppuskx0yl75rat65kw0vr5g34gpve9agzm2nkm7se7qd0r
